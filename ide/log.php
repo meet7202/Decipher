@@ -1,0 +1,151 @@
+<?php
+require('function.php');
+session_start();
+
+//login var
+$getemail = $_POST['getemail'];
+$getpass = $_POST['getpass'];
+$user = $getpass;
+
+
+//flag for login_count whether user select login or register
+	
+		try
+    {
+       
+
+        /*** prepare the select statement ***/
+        // $query = 'SELECT `email` , `password` FROM `login` 
+        //             WHERE `email` = 'saoravpratihaar@gmail.com' AND `password` = 'saorav08'';
+
+
+        $stmt = $connection->prepare("SELECT email, password,name1,name2 FROM login 
+                    WHERE email = :email AND password = :password");
+        
+        /*** bind the parameters ***/
+        $stmt->bindParam(':email', $getemail, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $getpass, PDO::PARAM_STR, 40);
+
+        /*** execute the prepared statement ***/
+        $stmt->execute();
+
+        /*** login_count for a result ***/
+        $user_id = $stmt->fetchColumn();
+
+
+
+
+            ////select count{
+
+
+
+        $cnt = $connection->prepare("SELECT count FROM login_count 
+                WHERE email = :email");
+        
+        /*** bind the parameters ***/
+        $cnt->bindParam(':email', $user, PDO::PARAM_STR);
+        // $stmt->bindParam(':password', $getpass, PDO::PARAM_STR, 40);
+
+        /*** execute the prepared statement ***/
+        $cnt->execute();
+
+        /*** check for a result ***/
+         $count = $cnt->fetch();
+
+
+         //} select count end.
+
+
+
+
+        
+
+
+
+        /*** if we have no result then fail boat ***/
+        if($user_id == false)
+        {
+                echo "<h1 align='center'>Login Failed! Email or Password Incorrect !</h1>";
+        }
+        /*** if we do have a result, all is well ***/
+
+
+       
+        else
+        {
+
+
+            if ($count['count'] == 20) {
+                header("Location: error.php");
+            }
+                //count use
+
+                // $count = $connection->prepare('SELECT count FROM login_count 
+                //             WHERE email = :exemail');
+                
+                // /*** bind the parameters ***/
+                // $count->bindParam(':exemail', $getemail, PDO::PARAM_STR);
+                // // $count->bindParam(':password', $getpass, PDO::PARAM_STR, 40);
+
+                // ** execute the prepared statement **
+                // $count->execute();
+
+                // $rsl = $count->fetch(PDO::FETCH_ASSOC);
+
+                // foreach ( $rsl as $v) {
+                //  // $username = $v['username'];
+                //  $cnt = $v['count']; 
+                //  }
+
+                //  if($cnt == 1){
+                //     header("Location: cntIs1.php");
+                //  }
+
+
+
+                /*** set the session user_id variable ***/
+
+                $_SESSION['user'] = $getemail;
+                $_SESSION['que'] = -1;
+                $_SESSION['flag'] = 'com';
+
+
+                //login time
+
+                // $insert = 'INSERT INTO login_count ( email,count )
+                //                VALUES
+                //                ( :myemail,1); '; 
+
+                // $result = $connection->prepare($insert);
+                // $result->execute( array( ':myemail'=>$getemail) );
+
+                header("Location: quiz.php"); // change this when quiz start
+                // header("Location: coming_soon.php");
+
+                echo "in login";
+
+                // echo "Name1: " . $user_id['name1']. ", Name2: ".$user_id['name2']."<br>";
+                
+                /*** tell the user we are logged in ***/
+                // $message = 'You are now logged in';
+        }
+
+
+    }
+
+
+    catch(Exception $e)
+    {
+        /*** if we are here, something has gone wrong with the database ***/
+        echo "Error. Please Contact Coordinators";
+        echo $e;
+        // $message = 'We are unable to process your request. Please try again later';
+    }
+
+
+		
+	
+
+
+
+?>
